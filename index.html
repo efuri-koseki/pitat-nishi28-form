@@ -110,7 +110,9 @@
   .gifts { margin-top: 20px; padding: 16px; display: grid; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
   .gifts p { margin: 0; text-align: center; }
   .gifts .btn { font-size: 17px; min-height: 56px; padding: 10px 12px; }
-  .gift-title { display: block; }
+  .gift-title { display: block; word-break: keep-all; overflow-wrap: anywhere; }
+  /* 空白で区切ったまとまり（例：「ガイドブック（売買）」）は、入る限り途中で折り返さない */
+  .gift-title .seg { display: inline-block; max-width: 100%; }
   .gift-cta { display: block; margin-top: 2px; font-size: 14px; font-weight: 700; color: var(--muted); }
   .linkbtn {
     appearance: none; background: none; border: 0; cursor: pointer;
@@ -155,7 +157,8 @@
   .time-note { margin: 4px 0 0; font-size: 15px; color: var(--muted); }
   .merits { margin-top: 14px; padding: 14px 16px; background: #F1ECE3; border-radius: var(--radius); }
   .merits-title { margin: 0 0 8px; font-size: 16px; font-weight: 800; }
-  .nb { white-space: nowrap; }
+  /* 「|」で区切った位置で折り返す。それでも入りきらない狭い画面では、どこで折り返してもよい（枠からはみ出さない） */
+  .kp { word-break: keep-all; overflow-wrap: anywhere; }
   .checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
   .checks li { position: relative; padding-left: 30px; font-size: 16px; font-weight: 700; line-height: 1.55; }
   .checks li::before {
@@ -325,10 +328,10 @@
   const OTHER_CITY = '上記以外の市町村';
   // 店舗サイトの「ご相談のメリット」を売却向けに置き換えたもの
   const MERITS = [
-    'お申し込みの方全員に、|売却ガイドブックなど3点をプレゼント',
+    'お申し込みの方全員に、|売却ガイドブックなど|3点をプレゼント',
     '資料請求・ご相談は無料です',
-    '売ると決めていなくても相談OK',
-    '日程が未定・オンライン相談もOK',
+    '売ると決めていなくても|相談OK',
+    '日程が未定・|オンライン相談もOK',
     'しつこい営業なし',
     // 「|」の位置で折り返す（画面が狭い時に「対応」だけが次の行に残らないように）
     '札幌・小樽・苫小牧・室蘭など|10市に対応',
@@ -370,7 +373,8 @@
   const tbd = (v, label) => (v ? esc(v) : `<span class="tbd">【確認中：${esc(label)}】</span>`);
   const labelOf = (list, v) => (list.find((o) => o.v === v) || {}).label || v || '';
   const ordered = (list, picked) => list.filter((v) => (picked || []).includes(v));
-  const meritText = (m) => (m.includes('|') ? m.split('|').map((s) => `<span class="nb">${esc(s)}</span>`).join('') : esc(m));
+  // 「|」の位置を折り返してよい位置にする（<wbr>）。折り返し方は .kp の指定に従う
+  const meritText = (m) => m.split('|').map(esc).join('<wbr>');
 
   function needs() {
     const a = S.a;
@@ -568,7 +572,7 @@
       + '<p class="sub">ボタンを押すと、資料（PDF）が開きます。</p>'
       // 資料名は空白の位置でだけ折り返す（「（売／買）」のように途中で切れないように）
       + list.map((g) => `<a class="btn ghost gift" href="${esc(g.url)}" target="_blank" rel="noopener">`
-        + `<span class="gift-title">${String(g.title).split(' ').map((s) => `<span class="nb">${esc(s)}</span>`).join(' ')}</span>`
+        + `<span class="gift-title">${String(g.title).split(' ').map((s) => `<span class="seg">${esc(s)}</span>`).join(' ')}</span>`
         + '<span class="gift-cta">タップして開く（PDF）</span></a>').join('')
       + '</div>';
   }
@@ -580,11 +584,11 @@
       return protoBanner()
         + '<div class="intro">'
         + `<span class="store">${esc(CONFIG.storeName)}</span>`
-        + '<p class="form-title">資料請求・ご相談申込フォーム</p>'
+        + '<p class="form-title kp">資料請求・<wbr>ご相談申込フォーム</p>'
         + '<p class="time-note">入力は1〜2分で終わります（目安）</p>'
-        + `<div class="merits"><p class="merits-title">ご相談のメリット</p><ul class="checks">${MERITS.map((m) => `<li>${meritText(m)}</li>`).join('')}</ul></div>`
+        + `<div class="merits"><p class="merits-title">ご相談のメリット</p><ul class="checks">${MERITS.map((m) => `<li${m.includes('|') ? ' class="kp"' : ''}>${meritText(m)}</li>`).join('')}</ul></div>`
         + '</div>'
-        + head('ご希望の内容を選んでください')
+        + head('<span class="kp">ご希望の内容を<wbr>選んでください</span>')
         + choices('purpose', OPT.purpose);
     },
 
