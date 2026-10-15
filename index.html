@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<!-- 試作中は検索結果に出さない。公開の方針が決まったら見直す -->
+<meta name="robots" content="noindex">
+<title>資料請求・ご相談申込フォーム｜ピタットハウス西28丁目店</title>
+<style>
+  :root {
+    --bg: #FAF7F2;
+    --surface: #FFFFFF;
+    --text: #262626;
+    --muted: #5E5A55;
+    --line: #DDD6CC;
+    --primary: #1E5B53;
+    --primary-dark: #154239;
+    --primary-soft: #E4EFEC;
+    --accent: #A84818;
+    --error: #B3261E;
+    --error-soft: #FCEDEC;
+    --mark: #FFF1B8;
+    --radius: 14px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+  }
+  button { -webkit-tap-highlight-color: transparent; }
+  .wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 16px calc(40px + env(safe-area-inset-bottom));
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 上部の戻る・進み具合 */
+  .bar { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 8px 0 10px; }
+  .bar-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
+  .back {
+    appearance: none; border: 0; background: none; cursor: pointer;
+    color: var(--primary); font: inherit; font-size: 17px; font-weight: 700;
+    padding: 8px 12px 8px 0; min-height: 44px;
+  }
+  .store { font-size: 13px; color: var(--muted); }
+  .progress { height: 8px; background: #E7E1D8; border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; width: 0; background: var(--primary); transition: width .3s; }
+
+  /* 質問 */
+  .q-count { font-size: 15px; color: var(--muted); margin: 16px 0 2px; }
+  h1 { outline: none; }
+  h1.q { font-size: 24px; line-height: 1.5; margin: 0 0 6px; font-weight: 800; }
+  .help { color: var(--muted); font-size: 16px; margin: 0 0 8px; }
+  .notice { margin: 14px 0 0; padding: 10px 12px; font-size: 15px; line-height: 1.6; background: #FFF6DC; border-radius: 10px; }
+  .opts { display: grid; gap: 12px; margin-top: 16px; }
+  .opts.cols2 { grid-template-columns: 1fr 1fr; }
+  .opt {
+    appearance: none; width: 100%; cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+    text-align: left; background: var(--surface); color: var(--text);
+    border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px; min-height: 64px;
+    font: inherit; font-size: 19px; font-weight: 700; line-height: 1.45;
+    transition: background .15s, border-color .15s;
+  }
+  .opt .dot {
+    flex: none; position: relative; width: 24px; height: 24px;
+    border-radius: 50%; border: 2px solid #B9B0A4; background: #fff;
+  }
+  .opt.multi .dot { border-radius: 6px; }
+  .opt[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); }
+  .opt[aria-pressed="true"] .dot { border-color: var(--primary); background: var(--primary); }
+  .opt[aria-pressed="true"] .dot::after {
+    content: ""; position: absolute; left: 6px; top: 2px; width: 7px; height: 12px;
+    border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg);
+  }
+  .opt small { display: block; margin-top: 2px; font-size: 15px; font-weight: 400; color: var(--muted); line-height: 1.5; }
+  .opts.cols2 .opt { justify-content: center; text-align: center; min-height: 60px; padding: 12px 8px; }
+  .opts.cols2 .opt .dot { display: none; }
+  .opt.near-toggle { justify-content: space-between; }
+  .chev { font-size: 14px; color: var(--muted); }
+  @media (hover: hover) { .opt:hover { border-color: #93B3AD; } }
+
+  /* ボタン */
+  .actions { margin-top: 28px; display: grid; gap: 12px; }
+  .btn {
+    appearance: none; display: block; width: 100%; cursor: pointer;
+    border: 0; border-radius: var(--radius);
+    background: var(--primary); color: #fff;
+    font: inherit; font-size: 20px; font-weight: 800;
+    padding: 16px; min-height: 64px;
+    box-shadow: 0 3px 0 var(--primary-dark);
+  }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--primary-dark); }
+  .btn[disabled] { opacity: .6; }
+  .btn.ghost { background: #fff; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
+  a.btn { text-align: center; text-decoration: none; line-height: 1.45; }
+  .gifts { margin-top: 20px; padding: 16px; display: grid; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+  .gifts p { margin: 0; text-align: center; }
+  .gifts .btn { font-size: 17px; min-height: 56px; padding: 10px 12px; }
+  .gift-title { display: block; }
+  .gift-cta { display: block; margin-top: 2px; font-size: 14px; font-weight: 700; color: var(--muted); }
+  .linkbtn {
+    appearance: none; background: none; border: 0; cursor: pointer;
+    color: var(--primary); text-decoration: underline; font: inherit; font-size: inherit; padding: 6px 4px;
+  }
+
+  /* 入力欄 */
+  .field { margin-top: 22px; }
+  .lbl { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 18px; font-weight: 800; }
+  .req, .opt-tag { font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 6px; }
+  .req { background: var(--accent); color: #fff; }
+  .opt-tag { background: #EAE5DD; color: var(--muted); }
+  .field .opts { margin-top: 0; }
+  input[type=text], input[type=tel], input[type=email], textarea {
+    width: 100%; padding: 14px; font: inherit; font-size: 19px;
+    color: var(--text); background: #fff;
+    border: 2px solid var(--line); border-radius: 12px;
+  }
+  textarea { resize: vertical; line-height: 1.6; }
+  input:focus, textarea:focus { outline: 3px solid rgba(30, 91, 83, .25); border-color: var(--primary); }
+  ::placeholder { color: #A39C92; }
+  .eg { font-size: 15px; color: var(--muted); margin: 6px 0 0; }
+  .err { display: none; margin: 6px 0 0; color: var(--error); font-size: 15px; font-weight: 700; }
+  .field.has-err .err { display: block; }
+  .field.has-err input, .field.has-err textarea { border-color: var(--error); background: var(--error-soft); }
+  .field.has-err .opt { border-color: #E3A9A4; }
+  .agree {
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    background: #fff; border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px; min-height: 60px; font-weight: 700;
+  }
+  .agree input { flex: none; width: 26px; height: 26px; margin: 0; accent-color: var(--primary); }
+  .field.has-err .agree { border-color: var(--error); background: var(--error-soft); }
+  .agree-note { font-size: 15px; margin: 6px 0 0; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  /* 1ページ目の見出し・ご相談のメリット */
+  .proto { background: var(--mark); font-size: 14px; padding: 8px 12px; border-radius: 10px; margin: 12px 0 0; }
+  .intro { padding-top: 16px; }
+  .intro .store { display: block; margin: 0; }
+  .form-title { margin: 2px 0 0; font-size: 22px; font-weight: 800; line-height: 1.4; }
+  .time-note { margin: 4px 0 0; font-size: 15px; color: var(--muted); }
+  .merits { margin-top: 14px; padding: 14px 16px; background: #F1ECE3; border-radius: var(--radius); }
+  .merits-title { margin: 0 0 8px; font-size: 16px; font-weight: 800; }
+  .nb { white-space: nowrap; }
+  .checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  .checks li { position: relative; padding-left: 30px; font-size: 16px; font-weight: 700; line-height: 1.55; }
+  .checks li::before {
+    content: ""; position: absolute; left: 0; top: .2em;
+    width: 20px; height: 20px; border-radius: 50%; background: var(--primary);
+  }
+  .checks li::after {
+    content: ""; position: absolute; left: 7px; top: calc(.2em + 4px);
+    width: 6px; height: 10px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg);
+  }
+
+  /* 確認画面 */
+  .review { margin-top: 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+  .review .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); }
+  .review .row:first-child { border-top: 0; }
+  .review .kv { flex: 1; min-width: 0; }
+  .review .k { font-size: 14px; font-weight: 700; color: var(--muted); }
+  .review .v { font-size: 17px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .review .none { color: #9A948C; }
+  .edit {
+    flex: none; appearance: none; cursor: pointer;
+    background: #fff; color: var(--primary); border: 2px solid var(--line); border-radius: 10px;
+    font: inherit; font-size: 15px; font-weight: 700; padding: 6px 12px; min-height: 44px;
+  }
+  .alert {
+    margin-top: 16px; padding: 12px 14px; font-size: 16px;
+    background: var(--error-soft); color: #5C1410; border: 2px solid var(--error); border-radius: 12px;
+  }
+
+  /* 完了画面 */
+  .done { padding-top: 28px; }
+  .done-icon {
+    width: 72px; height: 72px; margin: 0 auto 12px; border-radius: 50%;
+    background: var(--primary); color: #fff; font-size: 38px; font-weight: 800;
+    display: grid; place-items: center;
+  }
+  .done h1.q { text-align: center; }
+  .receipt { text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .box { margin-top: 20px; padding: 16px; text-align: center; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+  .box p { margin: 0; }
+  .box-title { font-weight: 800; }
+  .tel { display: inline-block; margin: 4px 0; font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
+  .sub { font-size: 15px; color: var(--muted); }
+  .tbd { background: var(--mark); padding: 0 4px; border-radius: 4px; font-weight: 700; }
+  .proto-detail { margin-top: 24px; padding: 10px 12px; font-size: 14px; background: var(--mark); border-radius: 10px; }
+  .proto-detail pre { margin: 8px 0 0; font-size: 13px; white-space: pre-wrap; word-break: break-all; }
+
+  /* 下部・個人情報の窓 */
+  .foot { margin-top: auto; padding-top: 36px; text-align: center; font-size: 13px; color: var(--muted); }
+  .foot p { margin: 0; }
+  .modal {
+    position: fixed; inset: 0; z-index: 20; padding: 16px;
+    background: rgba(0, 0, 0, .45);
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .modal-box {
+    width: 100%; max-width: 560px; max-height: 85vh; overflow: auto;
+    background: #fff; border-radius: 18px; padding: 20px 20px 0;
+  }
+  .modal-box h2 { font-size: 20px; margin: 0 0 12px; }
+  .modal-box .actions { position: sticky; bottom: 0; margin-top: 16px; padding: 12px 0 16px; background: #fff; }
+  .policy { font-size: 15px; line-height: 1.75; }
+  .policy p { margin: 0 0 8px; }
+  .policy h3 { font-size: 16px; margin: 18px 0 4px; }
+  .policy ul { margin: 0 0 8px; padding-left: 1.3em; }
+  .policy .date { margin-top: 16px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar" id="bar" hidden>
+    <div class="bar-row">
+      <button type="button" class="back" data-act="back">‹ 戻る</button>
+      <span class="store" id="barStore"></span>
+    </div>
+    <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+  </header>
+
+  <main id="app">
+    <noscript><p>このページを表示するには、JavaScriptを有効にしてください。</p></noscript>
+  </main>
+
+  <footer class="foot">
+    <p id="footStore"></p>
+    <button type="button" class="linkbtn" data-act="privacy">個人情報の取り扱い</button>
+  </footer>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <h2 id="modalTitle">個人情報の取り扱いについて</h2>
+    <!-- 本文は script の policyHtml() で入れる -->
+    <div class="policy" id="policy"></div>
+    <div class="actions"><button type="button" class="btn" data-act="close-modal">閉じる</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ===== 設定（店舗から受け取ったら書き換える） ===== */
+  const CONFIG = {
+    storeName: 'ピタットハウス西28丁目店',
+    // 会社名・支店名・所在地・電話・営業時間は店舗サイトの会社概要より（2026年10月3日確認）
+    company: '有限会社ハトヤビル',
+    branch: '札幌支店',
+    address: '〒064-0824 北海道札幌市中央区北四条西25丁目2番2号 リヒトラーレ円山1階',
+    tel: '011-616-5555',
+    hours: '9:30〜18:00（定休日：祝祭日・GW・お盆・年末年始）',
+    replyWithin: '24時間以内',  // 店舗サイトの相談フォームと同じ
+    // 受け取り用GASのURL（2026年10月3日 公開）。空にすると送信しない試作モードに戻る
+    endpoint: 'https://script.google.com/macros/s/AKfycby7ndsMQWtyWAgH9sfcYmG99uvsWrJ7UkCc5CplaSjKKPhvZh7Uk72XPbwH2BuzuVdN6g/exec',
+  };
+
+  /* ===== 選択肢 ===== */
+  const OPT = {
+    purpose: [
+      { v: '資料', label: 'まずは資料だけ受け取りたい' },
+      { v: '価格', label: '今の価格の目安を知りたい' },
+      { v: '相談', label: '売却について相談したい', sub: '売るかどうか決まっていなくても大丈夫です' },
+    ],
+    situation: [
+      { v: '相続した家', label: '親から相続した家', sub: 'これから相続する予定の家も含みます' },
+      { v: '親が施設・入院で空き家', label: '親が施設に入った・入院して、空き家になっている家' },
+      { v: '親が住んでいる家', label: '親が住んでいる家', sub: '一人暮らしなど' },
+      { v: '自分・家族が住んでいる家', label: '自分や家族が住んでいる家' },
+      { v: 'その他', label: 'その他' },
+    ],
+    type: ['一戸建て', 'マンション', '土地', 'その他'],
+    wards: ['中央区', '北区', '東区', '白石区', '豊平区', '南区', '西区', '厚別区', '手稲区', '清田区'],
+    // 札幌市以外の対応エリア（2026年10月3日 店舗に確認）
+    nearby: ['小樽市', '江別市', '北広島市', '恵庭市', '千歳市', '石狩市', '苫小牧市', '室蘭市', '登別市', '上記以外の市町村'],
+    timing: ['できるだけ早く', '半年以内', '1年以内', 'まだ決めていない'],
+    concerns: [
+      '住む予定がなく、使い道がない',
+      '雪かき・暖房・水道など、管理が大変',
+      '固定資産税などの費用がかかり続けている',
+      '施設費や生活費にあてたい',
+      '兄弟・家族で話がまとまっていない',
+      '荷物や仏壇の整理が進まない',
+      '名義や手続きが分からない',
+      'その他',
+    ],
+    // 店舗サイトの「ご相談方法」を売却向けにしたもの
+    way: [
+      { v: 'お店で相談', label: 'お店で相談したい' },
+      { v: 'オンラインで相談', label: 'オンラインで相談したい', sub: 'ビデオ通話など' },
+      { v: '家を見に来てほしい', label: '家を見に来てほしい' },
+      { v: 'まだ決めていない', label: 'まだ決めていない' },
+    ],
+    age: ['40代以下', '50代', '60代', '70代以上'],
+    method: ['お電話', 'メール', 'どちらでもよい'],
+    times: ['平日の昼', '平日の夕方以降', '土日・祝日', 'いつでもよい'],
+    // 資料・特典はメールでも郵送でもよい（店舗に確認済み）。資料請求の流れで使う
+    delivery: [
+      { v: 'メール', label: 'メールで受け取る' },
+      { v: '郵送', label: '郵送で受け取る', sub: '紙の資料をご住所にお送りします' },
+    ],
+    // 価格・相談の流れで使う（特典の受け取り方法）。保存先は資料請求と同じ delivery
+    giftDelivery: [
+      { v: 'メール', label: 'メールで受け取る' },
+      { v: '郵送', label: '郵送で受け取る', sub: '紙の資料をご住所にお送りします' },
+      { v: '相談時', label: '相談のときに受け取る' },
+    ],
+  };
+  const OTHER_CITY = '上記以外の市町村';
+  // 店舗サイトの「ご相談のメリット」を売却向けに置き換えたもの
+  const MERITS = [
+    'お申し込みの方全員に、|売却ガイドブックなど3点をプレゼント',
+    '資料請求・ご相談は無料です',
+    '売ると決めていなくても相談OK',
+    '日程が未定・オンライン相談もOK',
+    'しつこい営業なし',
+    // 「|」の位置で折り返す（画面が狭い時に「対応」だけが次の行に残らないように）
+    '札幌・小樽・苫小牧・室蘭など|10市に対応',
+  ];
+  const EXCLUSIVE = ['いつでもよい'];
+  const QUESTION_STEPS = ['purpose', 'situation', 'delivery', 'type', 'area', 'address', 'timing', 'concerns', 'way', 'contact', 'lite'];
+  const STORAGE_KEY = 'pitat-nishi28-form';
+
+  const S = {
+    step: 'purpose',
+    started: false,
+    a: { concerns: [], times: [] },
+    errs: {},
+    from: 'direct',
+    returnToConfirm: false,
+    showNear: false,
+    sending: false,
+    sendError: false,
+    result: null,
+    lock: false,
+  };
+
+  const app = document.getElementById('app');
+  const bar = document.getElementById('bar');
+  const prog = document.getElementById('prog');
+  const modal = document.getElementById('modal');
+
+  /* ===== 小さな道具 ===== */
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const toHalf = (s) => String(s ?? '').replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/　/g, ' ').trim();
+  const filled = (s) => toHalf(s) !== '';
+  const phoneDigits = (s) => toHalf(s).replace(/[^\d]/g, '');
+  const isPhone = (s) => /^0\d{9,10}$/.test(phoneDigits(s));
+  const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toHalf(s));
+  const zipDigits = (s) => toHalf(s).replace(/[^\d]/g, '');
+  // 番地の「−」「ー」など、ハイフンに似た記号を「-」にそろえる
+  const banchiText = (s) => toHalf(s).replace(/[‐‑‒–—―−ーｰ]/g, '-');
+  const zipText = (s) => zipDigits(s).replace(/^(\d{3})(\d{4})$/, '$1-$2');
+  const tbd = (v, label) => (v ? esc(v) : `<span class="tbd">【確認中：${esc(label)}】</span>`);
+  const labelOf = (list, v) => (list.find((o) => o.v === v) || {}).label || v || '';
+  const ordered = (list, picked) => list.filter((v) => (picked || []).includes(v));
+  const meritText = (m) => (m.includes('|') ? m.split('|').map((s) => `<span class="nb">${esc(s)}</span>`).join('') : esc(m));
+
+  function needs() {
+    const a = S.a;
+    const isLite = a.purpose === '資料';
+    return {
+      isLite,
+      phone: !isLite && (a.method === 'お電話' || a.method === 'どちらでもよい'),
+      // 価格・相談の方は、連絡方法がメールの時か、特典をメールで受け取る時にメールアドレスが要る
+      email: isLite ? a.delivery !== '郵送' : (a.method === 'メール' || a.method === 'どちらでもよい' || a.delivery === 'メール'),
+      post: a.delivery === '郵送',
+    };
+  }
+
+  // 受け取り方法の選択肢は、資料請求と価格・相談で違う
+  const deliveryOptions = () => (S.a.purpose === '資料' ? OPT.delivery : OPT.giftDelivery);
+
+  function placeText() {
+    const a = S.a;
+    if (a.areaKind === 'ward') return `札幌市${a.ward}`;
+    if (a.areaKind === 'near') return a.city === OTHER_CITY ? (toHalf(a.cityOther) || OTHER_CITY) : a.city;
+    return '';
+  }
+
+  // 選択肢の中に読点があるので、区切りは読点以外にする
+  function concernsText(sep) {
+    const a = S.a;
+    return ordered(OPT.concerns, a.concerns)
+      .map((v) => (v === 'その他' && filled(a.concernOther) ? `その他（${a.concernOther.trim()}）` : v))
+      .join(sep);
+  }
+
+  /* ===== 画面の順番 ===== */
+  function path() {
+    return S.a.purpose === '資料'
+      ? ['purpose', 'situation', 'delivery', 'lite', 'confirm', 'done']
+      : ['purpose', 'situation', 'type', 'area', 'address', 'timing', 'concerns', 'way', 'delivery', 'contact', 'confirm', 'done'];
+  }
+
+  function validate(step) {
+    const a = S.a;
+    const e = {};
+    if (step === 'address') {
+      if (a.areaKind === 'near' && a.city === OTHER_CITY && !filled(a.cityOther)) e.cityOther = '市町村名を入力してください';
+      if (!filled(a.town)) e.town = '町名を入力してください';
+    }
+    if (step === 'lite' || step === 'contact') {
+      const n = needs();
+      if (!filled(a.name)) e.name = 'お名前を入力してください';
+      if (step === 'contact') {
+        if (!a.age) e.age = '年代を選んでください';
+        if (!a.method) e.method = 'ご希望の連絡方法を選んでください';
+      }
+      if (n.phone) {
+        if (!filled(a.phone)) e.phone = '電話番号を入力してください';
+        else if (!isPhone(a.phone)) e.phone = '電話番号をもう一度ご確認ください（例：090-0000-0000）';
+      }
+      if (n.email) {
+        if (!filled(a.email)) e.email = 'メールアドレスを入力してください';
+        else if (!isEmail(a.email)) e.email = 'メールアドレスをもう一度ご確認ください';
+      }
+      if (n.post) {
+        if (!filled(a.zip)) e.zip = '郵便番号を入力してください';
+        else if (zipDigits(a.zip).length !== 7) e.zip = '郵便番号は7けたでご入力ください（例：064-0824）';
+        if (!filled(a.postAddress)) e.postAddress = 'ご住所を入力してください';
+        // 資料請求で郵送の方の電話番号は任意。入っている時だけ形を確かめる
+        if (n.isLite && filled(a.phone) && !isPhone(a.phone)) e.phone = '電話番号をもう一度ご確認ください（例：090-0000-0000）';
+      }
+      if (!a.agree) e.agree = '個人情報の取り扱いへの同意が必要です';
+    }
+    return e;
+  }
+
+  function isDone(step) {
+    const a = S.a;
+    switch (step) {
+      case 'purpose': case 'situation': case 'type': case 'timing': case 'way':
+        return !!a[step];
+      case 'delivery':
+        // 相談で「相談時」を選んだあと資料請求に変えた時などは、選び直してもらう
+        return deliveryOptions().some((o) => o.v === a.delivery);
+      case 'area':
+        return (a.areaKind === 'ward' && !!a.ward) || (a.areaKind === 'near' && !!a.city);
+      case 'concerns':
+        return true;
+      case 'address': case 'contact': case 'lite':
+        return Object.keys(validate(step)).length === 0;
+      default:
+        return false;
+    }
+  }
+
+  /* ===== 部品 ===== */
+  function optBtn({ act, key, v, label, sub, pressed, multi }) {
+    return `<button type="button" class="opt${multi ? ' multi' : ''}" data-act="${act}" data-key="${key}" data-v="${esc(v)}" aria-pressed="${!!pressed}">`
+      + `<span class="dot" aria-hidden="true"></span>`
+      + `<span>${esc(label)}${sub ? `<small>${esc(sub)}</small>` : ''}</span></button>`;
+  }
+
+  function head(title, help) {
+    const qs = path().filter((s) => QUESTION_STEPS.includes(s));
+    const n = qs.indexOf(S.step) + 1;
+    return `<p class="q-count">質問 ${n} / ${qs.length}</p>`
+      + `<h1 class="q" tabindex="-1">${title}</h1>`
+      + (help ? `<p class="help">${help}</p>` : '');
+  }
+
+  function choices(key, list) {
+    return `<div class="opts">${list.map((o) => optBtn({ act: 'pick', key, v: o.v, label: o.label, sub: o.sub, pressed: S.a[key] === o.v })).join('')}</div>`;
+  }
+
+  // タップで自動的に進む画面には付けない。入力や複数選択の画面だけで使う
+  const nextBtn = (label = '次へ') =>
+    `<div class="actions"><button type="button" class="btn" data-act="next">${label}</button></div>`;
+
+  function field(o) {
+    const err = S.errs[o.key];
+    const tag = o.req ? '<span class="req">必須</span>' : '<span class="opt-tag">任意</span>';
+    const attrs = `id="f-${o.key}" data-key="${o.key}"`
+      + (o.ac ? ` autocomplete="${o.ac}"` : '')
+      + (o.im ? ` inputmode="${o.im}"` : '')
+      + (o.ph ? ` placeholder="${esc(o.ph)}"` : '');
+    const input = o.type === 'textarea'
+      ? `<textarea ${attrs} rows="4">${esc(S.a[o.key])}</textarea>`
+      : `<input type="${o.type || 'text'}" ${attrs} value="${esc(S.a[o.key])}">`;
+    return `<div class="field${err ? ' has-err' : ''}">`
+      + `<label class="lbl" for="f-${o.key}">${esc(o.label)} ${tag}</label>${input}`
+      + (o.eg ? `<p class="eg">${esc(o.eg)}</p>` : '')
+      + `<p class="err" role="alert">${esc(err || '')}</p></div>`;
+  }
+
+  function groupField({ key, label, req, options, act, cols2, multi }) {
+    const err = S.errs[key];
+    const tag = req ? '<span class="req">必須</span>' : '<span class="opt-tag">任意</span>';
+    const btns = options.map((v) => optBtn({
+      act, key, v, label: v, multi,
+      pressed: multi ? (S.a[key] || []).includes(v) : S.a[key] === v,
+    })).join('');
+    return `<div class="field${err ? ' has-err' : ''}" role="group" aria-labelledby="g-${key}">`
+      + `<p class="lbl" id="g-${key}">${esc(label)} ${tag}</p>`
+      + `<div class="opts${cols2 ? ' cols2' : ''}">${btns}</div>`
+      + `<p class="err" role="alert">${esc(err || '')}</p></div>`;
+  }
+
+  function agreeField() {
+    const err = S.errs.agree;
+    return `<div class="field${err ? ' has-err' : ''}">`
+      + `<label class="agree"><input type="checkbox" data-key="agree"${S.a.agree ? ' checked' : ''}>個人情報の取り扱いに同意する</label>`
+      + `<p class="err" role="alert">${esc(err || '')}</p>`
+      + `<p class="agree-note"><button type="button" class="linkbtn" data-act="privacy">個人情報の取り扱いを読む</button></p></div>`;
+  }
+
+  // 不動産の問い合わせフォームで一般的な内容。店舗（運営会社）に既存の方針があれば、そちらに合わせる
+  function policyHtml() {
+    const company = tbd(CONFIG.company, '運営会社名');
+    return `<p>${company}（以下「当社」といいます）は、このフォームでお預かりする個人情報を、次のとおり取り扱います。</p>`
+      + '<h3>1. 利用目的</h3>'
+      + '<p>お預かりした個人情報は、次の目的のために利用します。</p>'
+      + '<ul>'
+      + '<li>お問い合わせ・ご相談への回答とご連絡</li>'
+      + '<li>資料の送付</li>'
+      + '<li>不動産の査定、売却に関するご説明とご提案</li>'
+      + '<li>サービス向上のための集計・分析（個人を特定できない形で行います）</li>'
+      + '</ul>'
+      + '<h3>2. 第三者への提供</h3>'
+      + '<p>法令に基づく場合を除き、ご本人の同意なく第三者に提供することはありません。</p>'
+      + '<h3>3. 業務の委託</h3>'
+      + '<p>利用目的の範囲内で、フォームの運用・管理などの業務の一部を外部に委託することがあります。その場合は、委託先を適切に選び、個人情報を安全に管理するよう求めます。</p>'
+      + '<h3>4. 安全管理</h3>'
+      + '<p>個人情報への不正なアクセス、紛失、漏えいなどを防ぐため、必要かつ適切な安全管理を行います。</p>'
+      + '<h3>5. 開示・訂正・削除のご請求</h3>'
+      + '<p>ご本人からご自身の個人情報について、開示・訂正・利用停止・削除のご請求があった場合は、ご本人であることを確認したうえで、法令に従って対応します。</p>'
+      + '<h3>6. ご提供いただく情報について</h3>'
+      + '<p>個人情報のご提供は任意です。ただし、必須の項目をご入力いただけない場合は、ご連絡や資料の送付ができないことがあります。</p>'
+      + '<h3>7. お問い合わせ窓口</h3>'
+      + `<p>${company} ${esc(CONFIG.branch)}　${esc(CONFIG.storeName)}<br>`
+      + `${tbd(CONFIG.address, '所在地')}<br>`
+      + `電話：${CONFIG.tel ? esc(CONFIG.tel) : tbd('', '電話番号')}<br>`
+      + `受付時間：${tbd(CONFIG.hours, '営業時間')}</p>`;
+  }
+
+  // 機械的な迷惑送信よけ。人には見えない欄に入力があれば送らない
+  const honeypot = () =>
+    `<div class="hp" aria-hidden="true"><label>この欄は空のままにしてください<input type="text" data-key="hp" tabindex="-1" autocomplete="off"></label></div>`;
+
+  const protoBanner = () =>
+    (CONFIG.endpoint ? '' : '<p class="proto">試作版です。最後に「送る」を押しても、どこにも送信されません。</p>');
+
+  // 完了ページの「特典を見る」ボタン。リンクは送信が成功した時にGASから受け取る（ページの中には書かない）
+  function giftLinks(gifts, proto) {
+    const list = (Array.isArray(gifts) ? gifts : []).filter((g) => g && /^https:\/\//.test(String(g.url)));
+    if (!list.length) {
+      return proto ? '<p class="proto">【試作】特典のリンクは、送信先（GAS）につないで設定すると、ここにボタンで表示されます。</p>' : '';
+    }
+    return '<div class="gifts"><p class="box-title">お申し込みの方への資料（3点）</p>'
+      + '<p class="sub">ボタンを押すと、資料（PDF）が開きます。</p>'
+      // 資料名は空白の位置でだけ折り返す（「（売／買）」のように途中で切れないように）
+      + list.map((g) => `<a class="btn ghost gift" href="${esc(g.url)}" target="_blank" rel="noopener">`
+        + `<span class="gift-title">${String(g.title).split(' ').map((s) => `<span class="nb">${esc(s)}</span>`).join(' ')}</span>`
+        + '<span class="gift-cta">タップして開く（PDF）</span></a>').join('')
+      + '</div>';
+  }
+
+  /* ===== 各画面 ===== */
+  const VIEWS = {
+    // Instagramのリンクから開いたら、すぐこの画面（最初の質問）から始まる
+    purpose() {
+      return protoBanner()
+        + '<div class="intro">'
+        + `<span class="store">${esc(CONFIG.storeName)}</span>`
+        + '<p class="form-title">資料請求・ご相談申込フォーム</p>'
+        + '<p class="time-note">入力は1〜2分で終わります（目安）</p>'
+        + `<div class="merits"><p class="merits-title">ご相談のメリット</p><ul class="checks">${MERITS.map((m) => `<li>${meritText(m)}</li>`).join('')}</ul></div>`
+        + '</div>'
+        + head('ご希望の内容を選んでください')
+        + choices('purpose', OPT.purpose);
+    },
+
+    situation() {
+      return head('物件の状況について、<br>最も近いものを選んでください')
+        + choices('situation', OPT.situation);
+    },
+
+    type() {
+      return head('家の種類を教えてください')
+        + choices('type', OPT.type.map((v) => ({ v, label: v })));
+    },
+
+    area() {
+      const a = S.a;
+      const nearOpen = S.showNear || a.areaKind === 'near';
+      let h = head('家のある場所を教えてください', '札幌市の方は、区を選んでください。');
+      h += `<div class="opts cols2">${OPT.wards.map((v) => optBtn({ act: 'ward', key: 'ward', v, label: v, pressed: a.areaKind === 'ward' && a.ward === v })).join('')}</div>`;
+      h += `<div class="opts"><button type="button" class="opt near-toggle" data-act="near" aria-expanded="${nearOpen}">`
+        + `<span>札幌市以外</span><span class="chev" aria-hidden="true">${nearOpen ? '▲' : '▼'}</span></button></div>`;
+      if (nearOpen) {
+        h += '<div id="nearList"><p class="help" style="margin-top:16px">市町村を選んでください。</p>'
+          + `<div class="opts cols2" style="margin-top:8px">${OPT.nearby.map((v) => optBtn({ act: 'city', key: 'city', v, label: v, pressed: a.areaKind === 'near' && a.city === v })).join('')}</div></div>`;
+      }
+      return h;
+    },
+
+    address() {
+      const a = S.a;
+      const isOtherCity = a.areaKind === 'near' && a.city === OTHER_CITY;
+      const place = a.areaKind === 'ward' ? `札幌市${a.ward}` : (isOtherCity ? '' : a.city);
+      let h = head(place ? `${esc(place)}の、<br>どのあたりですか？` : '家のある市町村と<br>町名を教えてください',
+        '町名まで教えていただくと、価格の目安をお伝えしやすくなります。');
+      if (isOtherCity) {
+        h += '<p class="notice">対応エリア（札幌市と、小樽・江別・北広島・恵庭・千歳・石狩・苫小牧・室蘭・登別の各市）以外の場合は、ご相談をお受けできないことがあります。</p>';
+        h += field({ key: 'cityOther', label: '市町村名', req: true, ph: '例：〇〇町' });
+      }
+      h += field({ key: 'town', label: '町名・丁目', req: true, ph: a.areaKind === 'ward' ? '例：北1条西28丁目' : '例：〇〇町1丁目' });
+      h += field({ key: 'banchi', label: '番地', req: false, ph: '例：1-2', eg: '分からなければ空欄で大丈夫です。' });
+      if (a.type === 'マンション') h += field({ key: 'mansion', label: 'マンション名', req: false });
+      return h + nextBtn();
+    },
+
+    timing() {
+      return head('売る・整理する時期の目安はありますか？')
+        + choices('timing', OPT.timing.map((v) => ({ v, label: v })));
+    },
+
+    concerns() {
+      const a = S.a;
+      let h = head('気になっていることはありますか？', 'いくつでも選べます。');
+      h += `<div class="opts">${OPT.concerns.map((v) => optBtn({ act: 'toggle', key: 'concerns', v, label: v, pressed: a.concerns.includes(v), multi: true })).join('')}</div>`;
+      if (a.concerns.includes('その他')) h += field({ key: 'concernOther', label: 'その他の内容', req: false, ph: '例：庭木の手入れができない' });
+      return h + nextBtn(a.concerns.length ? '次へ' : '特にないので次へ');
+    },
+
+    way() {
+      return head('ご相談の方法に希望はありますか？', 'あとから変えても大丈夫です。')
+        + choices('way', OPT.way);
+    },
+
+    contact() {
+      const n = needs();
+      let h = head('ご連絡先を教えてください', 'あと少しで終わりです。');
+      h += field({ key: 'name', label: 'お名前', req: true, ac: 'name', ph: '例：札幌 花子' });
+      h += groupField({ key: 'age', label: '年代', req: true, options: OPT.age, act: 'set', cols2: true });
+      h += groupField({ key: 'method', label: 'ご希望の連絡方法', req: true, options: OPT.method, act: 'set' });
+      if (n.phone) {
+        h += field({ key: 'phone', label: '電話番号', req: true, type: 'tel', ac: 'tel', ph: '例：090-0000-0000' });
+        h += groupField({ key: 'times', label: '連絡のつきやすい時間帯', req: false, options: OPT.times, act: 'toggle', cols2: true, multi: true });
+      }
+      if (n.email) {
+        h += field({ key: 'email', label: 'メールアドレス', req: true, type: 'email', ac: 'email', ph: '例：name@example.com',
+          eg: S.a.delivery === 'メール' ? '特典の資料も、このアドレスにお送りします。' : '' });
+      }
+      if (n.post) {
+        h += field({ key: 'zip', label: '特典の送り先の郵便番号', req: true, im: 'numeric', ac: 'postal-code', ph: '例：064-0824' });
+        h += field({ key: 'postAddress', label: '特典の送り先のご住所', req: true, ac: 'street-address', ph: '例：札幌市中央区北1条西28丁目', eg: '番地・建物名・部屋番号までご入力ください。' });
+      }
+      h += field({ key: 'message', label: 'ご質問・ご相談内容', req: false, type: 'textarea', ph: '例：兄弟と共有している実家です。何から始めればよいか知りたいです。' });
+      return h + agreeField() + honeypot() + nextBtn('確認画面へ');
+    },
+
+    delivery() {
+      if (S.a.purpose === '資料') {
+        return head('資料の受け取り方法を選んでください')
+          + choices('delivery', OPT.delivery);
+      }
+      return head('特典の受け取り方法を選んでください', 'お申し込みの方全員に、売却ガイドブックなど3点をお送りしています。')
+        + choices('delivery', OPT.giftDelivery);
+    },
+
+    lite() {
+      const n = needs();
+      let h = head('資料の送り先を教えてください', n.post ? '資料はご住所に郵送します。' : '資料はメールでお送りします。');
+      h += field({ key: 'name', label: 'お名前', req: true, ac: 'name', ph: '例：札幌 花子' });
+      if (n.email) h += field({ key: 'email', label: 'メールアドレス', req: true, type: 'email', ac: 'email', ph: '例：name@example.com', eg: '資料はこのアドレスにお送りします。' });
+      if (n.post) {
+        h += field({ key: 'zip', label: '郵便番号', req: true, im: 'numeric', ac: 'postal-code', ph: '例：064-0824' });
+        h += field({ key: 'postAddress', label: 'ご住所', req: true, ac: 'street-address', ph: '例：札幌市中央区北1条西28丁目', eg: '番地・建物名・部屋番号までご入力ください。' });
+        h += field({ key: 'phone', label: '電話番号', req: false, type: 'tel', ac: 'tel', ph: '例：090-0000-0000', eg: '郵便が届かない時などの確認に使います。' });
+      }
+      return h + agreeField() + honeypot() + nextBtn('確認画面へ');
+    },
+
+    confirm() {
+      const a = S.a;
+      const n = needs();
+      const contactStep = n.isLite ? 'lite' : 'contact';
+      const rows = [];
+      const row = (label, value, step) => rows.push(
+        `<div class="row"><div class="kv"><div class="k">${esc(label)}</div>`
+        + `<div class="v">${value ? esc(value) : '<span class="none">なし</span>'}</div></div>`
+        + `<button type="button" class="edit" data-act="edit" data-step="${step}">修正</button></div>`);
+
+      row('ご希望', labelOf(OPT.purpose, a.purpose), 'purpose');
+      row('物件の状況', labelOf(OPT.situation, a.situation), 'situation');
+      if (n.isLite) row('資料の受け取り方法', labelOf(OPT.delivery, a.delivery), 'delivery');
+      if (!n.isLite) {
+        row('家の種類', a.type, 'type');
+        row('場所', placeText(), 'area');
+        const mansion = a.type === 'マンション' && filled(a.mansion) ? `（${a.mansion.trim()}）` : '';
+        row('町名・番地', [(a.town || '').trim(), banchiText(a.banchi)].filter(Boolean).join(' ') + mansion, 'address');
+        row('時期の目安', a.timing, 'timing');
+        row('気になっていること', concernsText('\n'), 'concerns');
+        row('ご相談の方法', labelOf(OPT.way, a.way), 'way');
+        row('特典の受け取り方法', labelOf(OPT.giftDelivery, a.delivery), 'delivery');
+      }
+      row('お名前', (a.name || '').trim(), contactStep);
+      if (!n.isLite) {
+        row('年代', a.age, 'contact');
+        row('ご希望の連絡方法', a.method, 'contact');
+        if (n.phone) row('電話番号', phoneDigits(a.phone), 'contact');
+        if (n.phone) row('連絡のつきやすい時間帯', ordered(OPT.times, a.times).join('、'), 'contact');
+      }
+      if (n.email) row('メールアドレス', toHalf(a.email), contactStep);
+      if (n.post) {
+        row(n.isLite ? '郵便番号' : '特典の送り先の郵便番号', zipText(a.zip), contactStep);
+        row(n.isLite ? 'ご住所' : '特典の送り先のご住所', (a.postAddress || '').trim(), contactStep);
+        if (n.isLite) row('電話番号', filled(a.phone) ? phoneDigits(a.phone) : '', 'lite');
+      }
+      if (!n.isLite) row('ご質問・ご相談内容', (a.message || '').trim(), 'contact');
+
+      const telLine = CONFIG.tel ? `お急ぎの方はお電話でもどうぞ：<a href="tel:${phoneDigits(CONFIG.tel)}">${esc(CONFIG.tel)}</a>` : '';
+      return '<h1 class="q" tabindex="-1" style="margin-top:16px">入力内容のご確認</h1>'
+        + '<p class="help">間違いがなければ「この内容で送る」を押してください。</p>'
+        + `<div class="review">${rows.join('')}</div>`
+        + (S.sendError ? `<div class="alert" role="alert"><b>送信できませんでした。</b>電波の良い場所で、もう一度「この内容で送る」を押してください。${telLine}</div>` : '')
+        + `<div class="actions"><button type="button" class="btn" data-act="submit"${S.sending ? ' disabled' : ''}>${S.sending ? '送信しています…' : 'この内容で送る'}</button></div>`;
+    },
+
+    done() {
+      const a = S.a;
+      const r = S.result || {};
+      const isLite = a.purpose === '資料';
+      let h = '<div class="done"><div class="done-icon" aria-hidden="true">✓</div>';
+      h += `<h1 class="q" tabindex="-1">${isLite ? '資料のお申し込みを<br>受け付けました' : 'お申し込みを<br>受け付けました'}</h1>`;
+      h += `<p class="receipt">受付番号　<b>${esc(r.id || '')}</b></p>`;
+      if (isLite && a.delivery === '郵送') {
+        h += '<p>ご入力のご住所に、資料を郵送でお送りします。</p>';
+      } else if (isLite) {
+        h += '<p>ご入力のメールアドレスに、資料をお送りします。届かない場合は、迷惑メールのフォルダもご確認ください。</p>';
+      } else {
+        h += `<p>${esc(CONFIG.replyWithin)}に、担当者からご希望の方法でご連絡します。</p>`;
+        if (a.purpose === '価格') h += '<p class="sub">くわしい価格は、家の状態を見てからお伝えする場合があります。</p>';
+        const giftLine = { メール: '特典の資料は、ご入力のメールアドレスにもお送りしています。', 郵送: '特典の資料は、ご入力のご住所に郵送します。', 相談時: '特典の資料は、ご相談のときに紙でもお渡しします。' }[a.delivery];
+        if (giftLine) h += `<p>${giftLine}</p>`;
+      }
+      h += giftLinks(r.gifts, r.proto);
+      h += '<div class="box">'
+        + `<p class="box-title">${isLite ? 'ご相談はお電話でも受け付けています' : 'お急ぎの方はお電話でもどうぞ'}</p>`
+        + (CONFIG.tel ? `<a class="tel" href="tel:${phoneDigits(CONFIG.tel)}">${esc(CONFIG.tel)}</a>` : `<p>${tbd('', '電話番号')}</p>`)
+        + `<p class="sub">${esc(CONFIG.storeName)}　${tbd(CONFIG.hours, '営業時間')}</p></div>`;
+      if (r.proto) {
+        h += '<details class="proto-detail"><summary>【試作】送信される内容を見る</summary>'
+          + `<pre>${esc(JSON.stringify(r.payload, null, 2))}</pre></details>`
+          + '<div class="actions"><button type="button" class="btn ghost" data-act="reset">最初からやり直す（試作用）</button></div>';
+      }
+      return h + '</div>';
+    },
+  };
+
+  /* ===== 表示と移動 ===== */
+  function render() {
+    // 最初のページは見出しがあるので、戻る・進み具合の帯は2ページ目から出す
+    const showBar = S.step !== 'purpose' && S.step !== 'done';
+    bar.hidden = !showBar;
+    if (showBar) {
+      const qs = path().filter((s) => QUESTION_STEPS.includes(s));
+      const ratio = S.step === 'confirm' ? 1 : (qs.indexOf(S.step) + 1) / (qs.length + 1);
+      prog.style.width = `${Math.round(ratio * 100)}%`;
+    }
+    app.innerHTML = (VIEWS[S.step] || VIEWS.purpose)();
+  }
+
+  function save() {
+    if (S.result) return;
+    try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ step: S.step, a: S.a })); } catch (e) { /* 保存できなくても動かす */ }
+  }
+
+  function go(step, push = true) {
+    S.step = step;
+    S.errs = {};
+    if (step === 'confirm') S.returnToConfirm = false;
+    if (step === 'area') S.showNear = S.a.areaKind === 'near';
+    save();
+    if (push) history.pushState({ step }, '');
+    render();
+    window.scrollTo(0, 0);
+    const h = app.querySelector('h1');
+    if (h) h.focus({ preventScroll: true });
+  }
+
+  function next() {
+    const p = path();
+    const i = Math.max(0, p.indexOf(S.step));
+    if (S.returnToConfirm) {
+      // 確認画面から直しに来た時は、まだ答えていない画面だけを通って確認画面へ戻る
+      for (let j = i + 1; j < p.length; j++) {
+        if (p[j] === 'confirm' || !isDone(p[j])) return go(p[j]);
+      }
+    }
+    go(p[i + 1]);
+  }
+
+  function tryNext() {
+    const errs = validate(S.step);
+    if (Object.keys(errs).length) {
+      S.errs = errs;
+      render();
+      const f = app.querySelector('.field.has-err');
+      if (f) {
+        f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const inp = f.querySelector('input:not([type=checkbox]), textarea');
+        if (inp) setTimeout(() => inp.focus({ preventScroll: true }), 350);
+      }
+      return;
+    }
+    next();
+  }
+
+  // 選んだ印を一瞬見せてから次の画面へ
+  function choose(apply) {
+    if (S.lock) return;
+    S.lock = true;
+    apply();
+    save();
+    render();
+    setTimeout(() => { S.lock = false; next(); }, 220);
+  }
+
+  function setArea(kind, value) {
+    const a = S.a;
+    const before = a.areaKind === 'ward' ? a.ward : a.city;
+    if (a.areaKind !== kind || before !== value) {
+      a.town = ''; a.banchi = ''; a.cityOther = '';
+    }
+    a.areaKind = kind;
+    a.ward = kind === 'ward' ? value : '';
+    a.city = kind === 'near' ? value : '';
+  }
+
+  function toggle(key, v) {
+    const list = S.a[key] || (S.a[key] = []);
+    const i = list.indexOf(v);
+    if (i >= 0) {
+      list.splice(i, 1);
+    } else {
+      if (EXCLUSIVE.includes(v)) list.length = 0;
+      else EXCLUSIVE.forEach((x) => { const j = list.indexOf(x); if (j >= 0) list.splice(j, 1); });
+      list.push(v);
+    }
+    delete S.errs[key];
+    save();
+    render();
+  }
+
+  function reset() {
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) { /* 何もしない */ }
+    S.a = { concerns: [], times: [] };
+    S.result = null; S.errs = {}; S.returnToConfirm = false; S.sendError = false; S.showNear = false;
+    S.step = 'purpose';
+    history.replaceState({ step: 'purpose' }, '');
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  /* ===== 送信 ===== */
+  function buildPayload() {
+    const a = S.a;
+    const n = needs();
+    const p = {
+      purpose: a.purpose,
+      situation: a.situation,
+      name: (a.name || '').trim(),
+      email: n.email ? toHalf(a.email) : '',
+      from: S.from,
+      // 資料・特典の受け取り方法と、郵送の時の送り先（資料請求・価格・相談で共通）
+      delivery: a.delivery,
+      zip: n.post ? zipText(a.zip) : '',
+      postAddress: n.post ? (a.postAddress || '').trim() : '',
+    };
+    if (n.isLite) {
+      p.phone = n.post && filled(a.phone) ? phoneDigits(a.phone) : '';
+    } else {
+      Object.assign(p, {
+        type: a.type,
+        area: placeText(),
+        // 「上記以外の市町村」を選んだ人は対応エリア外の可能性がある（有効・無効の判断材料）
+        outOfArea: a.areaKind === 'near' && a.city === OTHER_CITY,
+        town: (a.town || '').trim(),
+        banchi: banchiText(a.banchi),
+        mansion: a.type === 'マンション' ? (a.mansion || '').trim() : '',
+        timing: a.timing,
+        concerns: ordered(OPT.concerns, a.concerns).join('／'),
+        concernOther: a.concerns.includes('その他') ? (a.concernOther || '').trim() : '',
+        way: a.way,
+        age: a.age,
+        method: a.method,
+        phone: n.phone ? phoneDigits(a.phone) : '',
+        times: n.phone ? ordered(OPT.times, a.times).join('／') : '',
+        message: (a.message || '').trim(),
+      });
+    }
+    return p;
+  }
+
+  async function submit() {
+    if (S.sending) return;
+    const payload = buildPayload();
+    if (filled(S.a.hp)) { S.result = { id: '-' }; return finish(); }
+    if (!CONFIG.endpoint) {
+      console.log('[試作] 送信される内容', payload);
+      S.result = { id: '（試作のため発行されません）', proto: true, payload };
+      return finish();
+    }
+    S.sending = true; S.sendError = false;
+    render();
+    try {
+      // 文字列で送ると事前確認の通信が起きず、GASでそのまま受け取れる
+      const res = await fetch(CONFIG.endpoint, { method: 'POST', body: JSON.stringify({ kind: 'submit', data: payload }) });
+      const j = await res.json();
+      if (!j || !j.ok) throw new Error('not ok');
+      S.sending = false;
+      S.result = { id: j.id, gifts: j.gifts };
+      finish();
+    } catch (e) {
+      S.sending = false; S.sendError = true;
+      render();
+      const al = app.querySelector('.alert');
+      if (al) al.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function finish() {
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) { /* 何もしない */ }
+    go('done');
+  }
+
+  // 表示回数・開始回数の記録（個人情報は送らない）
+  function track(event) {
+    if (!CONFIG.endpoint) return;
+    const body = JSON.stringify({ kind: 'event', event, from: S.from });
+    try { if (navigator.sendBeacon && navigator.sendBeacon(CONFIG.endpoint, body)) return; } catch (e) { /* 下で送り直す */ }
+    try { fetch(CONFIG.endpoint, { method: 'POST', body, keepalive: true, mode: 'no-cors' }); } catch (e) { /* 記録できなくても続ける */ }
+  }
+
+  /* ===== 操作の受け付け ===== */
+  document.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-act]');
+    if (!el) return;
+    const { act, key, v } = el.dataset;
+    switch (act) {
+      case 'back': history.back(); break;
+      case 'pick':
+        // 最初の質問に答えた時点を「入力を始めた」として数える
+        if (key === 'purpose' && !S.started) { S.started = true; track('start'); }
+        choose(() => { S.a[key] = v; });
+        break;
+      case 'ward': choose(() => setArea('ward', v)); break;
+      case 'city': choose(() => setArea('near', v)); break;
+      case 'near':
+        if (S.a.areaKind !== 'near') S.showNear = !S.showNear;
+        render();
+        if (S.showNear) { const l = document.getElementById('nearList'); if (l) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        break;
+      case 'set': S.a[key] = v; delete S.errs[key]; save(); render(); break;
+      case 'toggle': toggle(key, v); break;
+      case 'next': tryNext(); break;
+      case 'edit': S.returnToConfirm = true; S.sendError = false; go(el.dataset.step); break;
+      case 'submit': submit(); break;
+      case 'privacy': modal.hidden = false; break;
+      case 'close-modal': modal.hidden = true; break;
+      case 'reset': reset(); break;
+      default: break;
+    }
+  });
+
+  modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.hidden = true; });
+
+  function onInput(ev) {
+    const el = ev.target;
+    const key = el.dataset && el.dataset.key;
+    if (!key) return;
+    S.a[key] = el.type === 'checkbox' ? el.checked : el.value;
+    if (S.errs[key]) {
+      delete S.errs[key];
+      const f = el.closest('.field');
+      if (f) f.classList.remove('has-err');
+    }
+    save();
+  }
+  app.addEventListener('input', onInput);
+  app.addEventListener('change', onInput);
+
+  // スマホの「戻る」でも1つ前の質問に戻れるようにする
+  window.addEventListener('popstate', (ev) => {
+    const step = ev.state && ev.state.step;
+    if (S.result && step !== 'done') { reset(); return; }
+    S.step = step && path().includes(step) ? step : 'purpose';
+    S.errs = {}; S.sendError = false;
+    if (S.step === 'confirm') S.returnToConfirm = false;
+    if (S.step === 'area') S.showNear = S.a.areaKind === 'near';
+    save();
+    render();
+    window.scrollTo(0, 0);
+  });
+
+  /* ===== 開始 ===== */
+  function init() {
+    const f = new URLSearchParams(location.search).get('from') || '';
+    S.from = /^[a-z0-9_-]{1,20}$/i.test(f) ? f.toLowerCase() : 'direct';
+
+    let restored = false;
+    try {
+      const d = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || 'null');
+      if (d && d.a && d.step && d.step !== 'done' && VIEWS[d.step]) {
+        S.a = Object.assign({ concerns: [], times: [] }, d.a);
+        S.step = path().includes(d.step) ? d.step : 'purpose';
+        restored = S.step !== 'purpose';
+        S.started = !!S.a.purpose;
+      }
+    } catch (e) { /* 読めなければ最初から */ }
+
+    history.replaceState({ step: 'purpose' }, '');
+    if (restored) history.pushState({ step: S.step }, '');
+    if (S.step === 'area') S.showNear = S.a.areaKind === 'near';
+
+    document.getElementById('barStore').textContent = CONFIG.storeName;
+    document.getElementById('footStore').textContent = CONFIG.storeName;
+    document.getElementById('policy').innerHTML = policyHtml();
+    render();
+    track('view');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
